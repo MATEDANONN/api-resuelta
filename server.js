@@ -14,7 +14,19 @@ class DictionaryBackendServer {
 
     const app = express();
     app.use(express.json());
-    app.use(express.static('public'));
+    
+    app.use((req, res, next) => {
+      const filePath = path.join(__dirname, 'public', req.url);
+      const extname = path.extname(filePath).toLowerCase();
+      const allowedExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif']; // Add more extensions if needed
+
+      if (allowedExtensions.includes(extname)) {
+        res.sendFile(filePath);
+      } else {
+        next();
+      }
+    });
+
     app.use(express.urlencoded({ extended: false }));
     const authorization = new Authorization(app);
 
